@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<html lang="nl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Locatie Tracker</title>
+    <style>
+        #map {
+            width: 600px;
+            height: 400px;
+        }
+    </style>
+    <!-- Voeg de Leaflet-styles toe voor de kaart -->
+    <link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css" />
+</head>
+<body>
+    <h2>Locatie van je vriend:</h2>
+    <p id="location">Locatie wordt geladen...</p>
+    <div id="map"></div>
+
+    <!-- Voeg de Leaflet.js bibliotheek toe -->
+    <script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
+
+    <!-- JavaScript-code om de locatie op te halen en de kaart weer te geven -->
+    <script>
+        // Deze functie vraagt om de locatie
+        function getLocation() {
+            if (navigator.geolocation) {
+                navigator.geolocation.getCurrentPosition(showPosition, showError);
+            } else {
+                document.getElementById("location").innerText = "Geolocatie wordt niet ondersteund door jouw browser.";
+            }
+        }
+
+        // Deze functie toont de locatie op de pagina en op een kaart
+        function showPosition(position) {
+            let lat = position.coords.latitude;
+            let lon = position.coords.longitude;
+            document.getElementById("location").innerText = `Breedtegraad: ${lat}, Lengtegraad: ${lon}`;
+
+            // Maak een Leaflet-kaart met de opgehaalde locatie
+            let map = L.map('map').setView([lat, lon], 13); // Zet het middelpunt van de kaart op de locatie van je vriend
+            L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+                attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
+            }).addTo(map);
+
+            // Voeg een marker toe op de locatie van je vriend
+            L.marker([lat, lon]).addTo(map)
+                .bindPopup("Dit is de locatie van je vriend!")
+                .openPopup();
+        }
+
+        // Deze functie toont eventuele foutmeldingen (bijv. als de locatie niet kan worden opgehaald)
+        function showError(error) {
+            switch (error.code) {
+                case error.PERMISSION_DENIED:
+                    document.getElementById("location").innerText = "Toegang tot locatie geweigerd.";
+                    break;
+                case error.POSITION_UNAVAILABLE:
+                    document.getElementById("location").innerText = "Locatie-informatie is niet beschikbaar.";
+                    break;
+                case error.TIMEOUT:
+                    document.getElementById("location").innerText = "Verzoek voor locatie verliep in tijd.";
+                    break;
+                case error.UNKNOWN_ERROR:
+                    document.getElementById("location").innerText = "Er is een onbekende fout opgetreden.";
+                    break;
+            }
+        }
+
+        // Roep de functie aan om de locatie op te halen
+        getLocation();
+    </script>
+</body>
+</html>
